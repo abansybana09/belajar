@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ArrowRight } from "lucide-react"
 
 const tips = [
 	{
@@ -39,8 +40,8 @@ const tips = [
 
 export default function TipsPage() {
 	return (
-		<main className="p-6 max-w-3xl mx-auto">
-			<header className="flex gap-4 items-center mb-6">
+		<main className="p-6 md:p-10 max-w-5xl mx-auto bg-white rounded-2xl shadow-sm">
+			<header className="flex gap-4 items-center mb-8 border-b pb-4">
 				<Image src="/file.svg" alt="tips" width={48} height={48} />
 				<div>
 					<h1 className="m-0 text-2xl font-semibold">Tips Mancing</h1>
@@ -48,18 +49,18 @@ export default function TipsPage() {
 				</div>
 			</header>
 
-			<section className="grid gap-4">
+			<section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{tips.map((t) => (
-					<Card key={t.title}>
+					<Card key={t.title} className="transition-all duration-300 hover:shadow-md hover:translate-y-1 border border-gray-200 rounded-xl">
 						<CardHeader>
-							<CardTitle>{t.title}</CardTitle>
-							<CardDescription>{t.body}</CardDescription>
+							<CardTitle className="text-lg font-semibold text-gray-800">{t.title}</CardTitle>
+							<CardDescription className="text-sm text-gray-500">{t.body}</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<p className="text-sm text-muted-foreground">{t.body}</p>
 						</CardContent>
 						<CardFooter>
-							<Button variant="ghost" size="sm">Baca Selengkapnya</Button>
+							<Button variant="ghost" size="sm" className="flex-items-center gap-1">Baca Selengkapnya <ArrowRight size={16}/></Button>
 						</CardFooter>
 					</Card>
 				))}
