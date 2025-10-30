@@ -212,89 +212,143 @@ export default function Page(): React.ReactElement {
 						{filtered.map((loc) => {
 							const isHighlighted = highlighted === loc.id
 							const isHovered = hoveredId === loc.id
+							const pop = popularity[loc.id] ?? 0
+							const starCount = Math.max(0, Math.min(5, Math.round(pop / 20)))
 							return (
 								<article
-									ref={(el) => { cardRefs.current[loc.id] = el }}
-									key={loc.id}
-									onMouseEnter={() => setHoveredId(loc.id)}
-									onMouseLeave={() => setHoveredId(null)}
-									className={`group relative rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border ${isHighlighted ? 'ring-4 ring-violet-200 dark:ring-violet-900 shadow-2xl' : 'border-gray-100 dark:border-slate-800 shadow-sm'} transform transition hover:-translate-y-2`}
-								>
-									{/* HIGHLIGHT LABEL */}
-									{isHighlighted && (
-										<span className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-rose-500 text-white text-xs font-semibold shadow-md">✨ Highlight</span>
-									)}
+	ref={(el) => { cardRefs.current[loc.id] = el }}
+	key={loc.id}
+	onMouseEnter={() => setHoveredId(loc.id)}
+	onMouseLeave={() => setHoveredId(null)}
+	className={`group relative rounded-xl overflow-hidden bg-white dark:bg-slate-900 border 
+	${isHighlighted ? 'ring-4 ring-indigo-200 dark:ring-indigo-900 shadow-xl' : 'border-gray-200 dark:border-slate-700 shadow-sm'}
+	transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+>
+	{/* HIGHLIGHT LABEL */}
+	{isHighlighted && (
+		<span className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow-md">
+			✨ Fokus
+		</span>
+	)}
 
-									<div className="h-40 bg-gray-200 relative overflow-hidden">
-										<img src={loc.image} alt={loc.name} className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+	{/* IMAGE */}
+	<div className="h-40 bg-gray-200 relative overflow-hidden">
+		<img
+			src={loc.image}
+			alt={loc.name}
+			className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+		/>
 
-										<div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-											<div className="flex-1">
-												<div className="text-sm text-white font-semibold drop-shadow">{loc.name}</div>
-												<div className="text-xs text-white/80">{loc.region}</div>
-											</div>
-											<Link href={`/lokasi/${loc.id}`} className="inline-block">
-												<button className="ml-2 px-3 py-1.5 rounded-md bg-white/90 text-sm font-medium">Lihat</button>
-											</Link>
-										</div>
-									</div>
+		{/* POP BADGE + STARS */}
+		<div className="absolute top-3 left-3 z-20 flex items-center gap-2">
+			<div className="text-[11px] px-2 py-0.5 rounded-full bg-white/90 text-rose-600 font-medium shadow">
+				{pop ? `🔥 ${pop}%` : '—'}
+			</div>
+			<div className="flex items-center gap-0.5 text-yellow-400">
+				{Array.from({ length: 5 }).map((_, i) => (
+					<span key={i} className={`text-xs ${i < starCount ? '' : 'opacity-30'}`}>★</span>
+				))}
+			</div>
+		</div>
 
-									<div className="p-4 flex flex-col justify-between h-44">
-										<div>
-											<h3 className="flex items-center justify-between gap-3 text-base font-semibold mb-1">
-												<div className="flex items-center gap-3">
-													<span>{loc.name}</span>
-													<span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200">{loc.region}</span>
-												</div>
-											</h3>
+		{/* Hover Overlay */}
+		<div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+			<div className="flex-1">
+				<div className="text-sm text-white font-semibold">{loc.name}</div>
+				<div className="text-xs text-white/80">{loc.region}</div>
+			</div>
+			<Link href={`/lokasi/${loc.id}`}>
+				<button className="ml-2 px-3 py-1.5 rounded-md bg-white/90 text-xs font-medium shadow">
+					Lihat
+				</button>
+			</Link>
+		</div>
+	</div>
 
-											<div className="flex items-center gap-2 mb-2">
-												<span style={{ background: difficultyColor(loc.difficulty) }} className="px-2 py-1 rounded-full text-xs font-semibold text-black dark:text-black">
-													{loc.difficulty ?? '—'}
-												</span>
+	{/* CONTENT */}
+	<div className="p-4 flex flex-col justify-between h-44">
+		<div>
+			<h3 className="flex items-center justify-between gap-3 text-base font-semibold mb-2">
+				<span>{loc.name}</span>
+				<span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+					{loc.region}
+				</span>
+			</h3>
 
-												{/* ✅ POPULARITY NOW SAFE */}
-												<span className="text-xs text-slate-400">
-													Pop: {popularity[loc.id] ? `${popularity[loc.id]}%` : "—"}
-												</span>
-											</div>
+			{/* Difficulty & Popularity */}
+			<div className="flex items-center gap-3 mb-3">
+				<span
+					style={{ background: difficultyColor(loc.difficulty) }}
+					className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-black dark:text-black"
+				>
+					{loc.difficulty ?? '—'}
+				</span>
 
-											<div>
-												<p
-													className="text-sm text-slate-700 dark:text-slate-300"
-													style={!expandedMap[loc.id] ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}}
-												>
-													{highlightText(loc.description, query)}
-												</p>
+				<div className="flex items-center gap-2">
+					<span className="text-xs text-slate-500 dark:text-slate-400">
+						{pop}% Populer
+					</span>
+					<div className="w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+						<div
+							style={{ width: `${pop}%` }}
+							className="h-full bg-rose-400"
+						/>
+					</div>
+				</div>
+			</div>
 
-												{loc.description.length > 120 && (
-													<button
-														onClick={() => toggleExpanded(loc.id)}
-														className="mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-300"
-													>
-														{expandedMap[loc.id] ? 'Tampilkan sedikit' : 'Baca selengkapnya'}
-													</button>
-												)}
-											</div>
-										</div>
+			<p
+				className="text-sm text-slate-600 dark:text-slate-300"
+				style={!expandedMap[loc.id] ? {
+					display: '-webkit-box',
+					WebkitLineClamp: 2,
+					WebkitBoxOrient: 'vertical',
+					overflow: 'hidden'
+				} : {}}
+			>
+				{highlightText(loc.description, query)}
+			</p>
 
-										<div className="mt-3 flex items-center justify-between gap-3">
-											<div className="flex gap-2 flex-wrap">
-												{loc.bestSeasons.slice(0, 4).map((s) => (
-													<span key={s} className="px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-50 to-green-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-slate-200">{s}</span>
-												))}
-											</div>
+			{loc.description.length > 120 && (
+				<button
+					onClick={() => toggleExpanded(loc.id)}
+					className="mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-300"
+				>
+					{expandedMap[loc.id] ? 'Tutup' : 'Baca selengkapnya'}
+				</button>
+			)}
+		</div>
 
-											<div className="flex items-center gap-2">
-												<Link href={`/lokasi/${loc.id}`} className="text-sm">
-													<button className="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 hover:scale-105 transition dark:bg-indigo-600 dark:text-white">Lihat</button>
-												</Link>
+		{/* Footer Buttons */}
+		<div className="mt-4 flex items-center justify-between">
+			<div className="flex gap-2 flex-wrap">
+				{loc.bestSeasons.slice(0, 4).map((s) => (
+					<span
+						key={s}
+						className="px-2 py-1 rounded-full text-[11px] font-medium bg-indigo-50 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+					>
+						{s}
+					</span>
+				))}
+			</div>
 
-												<button onClick={() => setHighlighted(loc.id)} className="px-3 py-1.5 rounded-md border border-gray-200 bg-white text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200">📍 Fokus</button>
-											</div>
-										</div>
-									</div>
-								</article>
+			<div className="flex items-center gap-2">
+				<Link href={`/lokasi/${loc.id}`}>
+					<button className="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-600 text-xs font-medium hover:bg-indigo-100 dark:bg-indigo-600 dark:text-white">
+						Lihat
+					</button>
+				</Link>
+				<button
+					onClick={() => setHighlighted(loc.id)}
+					className="px-3 py-1.5 rounded-md bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-medium shadow hover:scale-105 transition"
+				>
+					📍 Fokus
+				</button>
+			</div>
+		</div>
+	</div>
+</article>
+
 							)
 						})}
 					</div>
