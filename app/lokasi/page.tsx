@@ -54,10 +54,40 @@ export default function Page(): React.ReactElement {
 	const [region, setRegion] = useState("All")
 	const [sortBy, setSortBy] = useState<"popular" | "alpha">("popular")
 
-	// refs to allow scrolling to a chosen card (Surprise Me)
-	const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
+	const cardRefs = useRef<Record<string, HTMLElement | null>>({});
 	const [highlighted, setHighlighted] = useState<string | null>(null)
 	const [hoveredId, setHoveredId] = useState<string | null>(null)
+	const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({})
+	
+
+	/** ✅ NEW: Simpan Popularity agar tidak random saat SSR */
+	const [popularity, setPopularity] = useState<Record<string, number>>({})
+
+	useEffect(() => {
+		const map: Record<string, number> = {}
+		SAMPLE_LOCATIONS.forEach(loc => {
+			map[loc.id] = Math.floor(Math.random() * 90) + 10
+		})
+		setPopularity(map)
+	}, [])
+
+	function toggleExpanded(id: string) {
+		setExpandedMap((prev) => ({ ...prev, [id]: !prev[id] }))
+	}
+
+	function highlightText(text: string, q: string) {
+		if (!q) return text
+		const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+		const parts = text.split(new RegExp(`(${safe})`, "i"))
+		return parts.map((part, i) => {
+			if (part.toLowerCase() === q.toLowerCase()) {
+				return (
+					<span key={i} className="bg-yellow-200 dark:bg-yellow-600 text-black dark:text-black px-0.5 rounded">{part}</span>
+				)
+			}
+			return <span key={i}>{part}</span>
+		})
+	}
 
 	const regions = useMemo(() => {
 		const set = new Set(SAMPLE_LOCATIONS.map((l) => l.region))
@@ -81,7 +111,8 @@ export default function Page(): React.ReactElement {
 		const el = cardRefs.current[highlighted]
 		if (el) {
 			el.scrollIntoView({ behavior: "smooth", block: "center" })
-			setTimeout(() => setHighlighted(null), 2000)
+			const timer = setTimeout(() => setHighlighted(null), 2000)
+			return () => clearTimeout(timer)
 		}
 	}, [highlighted])
 
@@ -94,69 +125,70 @@ export default function Page(): React.ReactElement {
 	function difficultyColor(d?: string) {
 		switch (d) {
 			case "Easy":
-				return "#86efac" // green
+				return "#86efac"
 			case "Moderate":
-				return "#fcd34d" // yellow
+				return "#fcd34d"
 			case "Hard":
-				return "#fb7185" // red/pink
+				return "#fb7185"
 			default:
 				return "#e5e7eb"
 		}
 	}
 
 	return (
-		<main style={{ padding: "2rem", maxWidth: 1100, margin: "0 auto" }}>
-			<header style={{ marginBottom: "1.25rem" }}>
-				<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-					<div>
-						<h1 style={{ fontSize: "1.9rem", margin: 0, background: "linear-gradient(90deg,#06b6d4,#7c3aed)", WebkitBackgroundClip: "text", color: "transparent" }}>
-							🎣 Lokasi Mancing
-						</h1>
-						<p style={{ marginTop: 6, color: "#555" }}>
-							Kumpulan spot rekomendasi — cari, saring, dan temukan kejutan.
-						</p>
+		<main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			{/* HERO SECTION */}
+			<section className="mb-6 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 p-6 shadow-md flex items-center justify-between gap-6">
+				<div className="flex items-center gap-4">
+					<div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+							<path d="M2 12c4-6 10-8 20-2-6 2-10 6-16 8-2-2-4-4-4-6z" fill="currentColor" />
+						</svg>
+						<span className="absolute -right-2 -bottom-2 w-5 h-5 rounded-full bg-white/90 text-blue-600 flex items-center justify-center text-[11px] animate-bounce">🐟</span>
 					</div>
 
-					<div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-						<div style={{ fontSize: 13, color: "#444" }}>{filtered.length} hasil</div>
-						<button
-							onClick={() => { setQuery(""); setRegion("All"); setSortBy("popular") }}
-							style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: "#eef2ff", cursor: "pointer" }}
-						>
-							Reset
-						</button>
-						<button
-							onClick={surpriseMe}
-							style={{ padding: "8px 12px", borderRadius: 999, border: "none", background: "#ffedd5", cursor: "pointer" }}
-						>
-							Surprise Me ✨
-						</button>
+					<div>
+						<h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-violet-600 dark:text-white">🎣 Lokasi Mancing</h1>
+						<p className="text-sm text-slate-600 dark:text-slate-300">Kumpulan spot rekomendasi — cari, saring, dan temukan kejutan.</p>
 					</div>
 				</div>
-			</header>
 
-			<section
-				aria-label="controls"
-				style={{ display: "flex", gap: 12, marginBottom: 18, flexWrap: "wrap", alignItems: "center" }}
-			>
+				<div className="flex items-center gap-3">
+					<div className="text-sm text-slate-600 dark:text-slate-300">{filtered.length} hasil</div>
+					<button
+						onClick={() => { setQuery(""); setRegion("All"); setSortBy("popular") }}
+						className="px-3 py-2 rounded-md bg-white border border-gray-200 hover:bg-gray-50 text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+					>
+						Reset
+					</button>
+
+					<button
+						onClick={surpriseMe}
+						className="px-4 py-2 rounded-full bg-rose-500 to-pink-500 bg-gradient-to-r text-white text-sm font-semibold shadow-lg hover:scale-105 transition"
+					>
+						Surprise Me ✨
+					</button>
+				</div>
+			</section>
+
+			{/* FILTERS */}
+			<section aria-label="controls" className="flex gap-3 mb-5 flex-wrap items-center">
 				<input
 					aria-label="Cari lokasi"
 					placeholder="Cari nama atau deskripsi..."
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
-					style={{ flex: 1, minWidth: 200, padding: "8px 10px", borderRadius: 6, border: "1px solid #ddd" }}
+					className="flex-1 min-w-[180px] px-3 py-2 rounded-md border border-gray-200 bg-white text-sm outline-none focus:ring-2 focus:ring-indigo-300 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-indigo-500"
 				/>
 
 				<select
 					aria-label="Filter region"
 					value={region}
 					onChange={(e) => setRegion(e.target.value)}
-					style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #ddd", background: "white" }}
+					className="px-3 py-2 rounded-md border border-gray-200 bg-white text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
 				>
 					{regions.map((r) => (
-						<option key={r} value={r}>
-							{r}
-						</option>
+						<option key={r} value={r}>{r}</option>
 					))}
 				</select>
 
@@ -164,103 +196,102 @@ export default function Page(): React.ReactElement {
 					aria-label="Urutkan"
 					value={sortBy}
 					onChange={(e) => setSortBy(e.target.value as any)}
-					style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #ddd", background: "white" }}
+					className="px-3 py-2 rounded-md border border-gray-200 bg-white text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
 				>
 					<option value="popular">Terpopuler</option>
 					<option value="alpha">A–Z</option>
 				</select>
 			</section>
 
+			{/* RESULTS */}
 			<section aria-live="polite">
 				{filtered.length === 0 ? (
-					<div style={{ padding: 24, background: "#f9f9f9", borderRadius: 8 }}>Tidak ada lokasi yang cocok.</div>
+					<div className="p-6 bg-gray-50 dark:bg-slate-800 rounded-md">Tidak ada lokasi yang cocok.</div>
 				) : (
-					<div
-						style={{
-							display: "grid",
-							gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-							gap: 16,
-						}}
-					>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 						{filtered.map((loc) => {
 							const isHighlighted = highlighted === loc.id
 							const isHovered = hoveredId === loc.id
 							return (
 								<article
-									ref={(el) => { cardRefs.current[loc.id] = el as HTMLDivElement | null }}
+									ref={(el) => { cardRefs.current[loc.id] = el }}
 									key={loc.id}
 									onMouseEnter={() => setHoveredId(loc.id)}
 									onMouseLeave={() => setHoveredId(null)}
-									style={{
-										border: "1px solid #eee",
-										borderRadius: 12,
-										overflow: "hidden",
-										background: "linear-gradient(180deg, #ffffff, #fbfbff)",
-										boxShadow: isHighlighted ? "0 6px 30px rgba(124,58,237,0.12)" : isHovered ? "0 8px 24px rgba(2,6,23,0.06)" : "0 1px 4px rgba(2,6,23,0.04)",
-										transform: isHovered ? "translateY(-6px) scale(1.01)" : "translateY(0)",
-										transition: "transform 180ms ease, box-shadow 220ms ease",
-										display: "flex",
-										flexDirection: "column",
-									}}
+									className={`group relative rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border ${isHighlighted ? 'ring-4 ring-violet-200 dark:ring-violet-900 shadow-2xl' : 'border-gray-100 dark:border-slate-800 shadow-sm'} transform transition hover:-translate-y-2`}
 								>
-									<div style={{ height: 150, overflow: "hidden", background: "#ddd" }}>
-										<img
-											src={loc.image}
-											alt={loc.name}
-											style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-										/>
+									{/* HIGHLIGHT LABEL */}
+									{isHighlighted && (
+										<span className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-rose-500 text-white text-xs font-semibold shadow-md">✨ Highlight</span>
+									)}
+
+									<div className="h-40 bg-gray-200 relative overflow-hidden">
+										<img src={loc.image} alt={loc.name} className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+
+										<div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+											<div className="flex-1">
+												<div className="text-sm text-white font-semibold drop-shadow">{loc.name}</div>
+												<div className="text-xs text-white/80">{loc.region}</div>
+											</div>
+											<Link href={`/lokasi/${loc.id}`} className="inline-block">
+												<button className="ml-2 px-3 py-1.5 rounded-md bg-white/90 text-sm font-medium">Lihat</button>
+											</Link>
+										</div>
 									</div>
 
-									<div style={{ padding: 12, flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+									<div className="p-4 flex flex-col justify-between h-44">
 										<div>
-											<h3 style={{ margin: "0 0 6px 0", display: "flex", alignItems: "center", gap: 8 }}>
-												<span style={{ fontSize: 16 }}>{loc.name}</span>
-												<span style={{ fontSize: 13, color: "#6b7280" }}>• {loc.region}</span>
+											<h3 className="flex items-center justify-between gap-3 text-base font-semibold mb-1">
+												<div className="flex items-center gap-3">
+													<span>{loc.name}</span>
+													<span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200">{loc.region}</span>
+												</div>
 											</h3>
-											<div style={{ marginBottom: 8, display: "flex", gap: 8, alignItems: "center" }}>
-												<span style={{ background: difficultyColor(loc.difficulty), padding: "6px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600 }}>
-													{loc.difficulty ?? "—"}
+
+											<div className="flex items-center gap-2 mb-2">
+												<span style={{ background: difficultyColor(loc.difficulty) }} className="px-2 py-1 rounded-full text-xs font-semibold text-black dark:text-black">
+													{loc.difficulty ?? '—'}
 												</span>
-												<span style={{ fontSize: 12, color: "#9ca3af" }}>Pop: {Math.floor(Math.random() * 90) + 10}%</span>
+
+												{/* ✅ POPULARITY NOW SAFE */}
+												<span className="text-xs text-slate-400">
+													Pop: {popularity[loc.id] ? `${popularity[loc.id]}%` : "—"}
+												</span>
 											</div>
-											<p style={{ margin: "0 0 12px 0", color: "#374151", fontSize: 14 }}>{loc.description}</p>
+
+											<div>
+												<p
+													className="text-sm text-slate-700 dark:text-slate-300"
+													style={!expandedMap[loc.id] ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}}
+												>
+													{highlightText(loc.description, query)}
+												</p>
+
+												{loc.description.length > 120 && (
+													<button
+														onClick={() => toggleExpanded(loc.id)}
+														className="mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-300"
+													>
+														{expandedMap[loc.id] ? 'Tampilkan sedikit' : 'Baca selengkapnya'}
+													</button>
+												)}
+											</div>
 										</div>
 
-										<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginTop: 6 }}>
-											<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-												{loc.bestSeasons.slice(0, 4).map((s, i) => (
-													<span
-														key={s}
-														style={{
-															background: `linear-gradient(90deg, rgba(99,102,241,0.08), rgba(16,185,129,0.04))`,
-															padding: "6px 10px",
-															borderRadius: 999,
-															fontSize: 12,
-															fontWeight: 600,
-															opacity: 0.95,
-														}}
-													>
-														{s}
-													</span>
+										<div className="mt-3 flex items-center justify-between gap-3">
+											<div className="flex gap-2 flex-wrap">
+												{loc.bestSeasons.slice(0, 4).map((s) => (
+													<span key={s} className="px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-50 to-green-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-slate-200">{s}</span>
 												))}
 											</div>
 
-											<div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-												<Link href={`/lokasi/${loc.id}`} style={{ textDecoration: "none" }}>
-													<button
-														aria-label={`Lihat ${loc.name}`}
-														style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: "#eef2ff", cursor: "pointer" }}
-													>
-														Lihat
-													</button>
-													</Link>
-													<button
-														onClick={() => setHighlighted(loc.id)}
-														style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #eee", background: "white", cursor: "pointer" }}
-													>
-														📍 Fokus
-													</button>
-												</div>
+											<div className="flex items-center gap-2">
+												<Link href={`/lokasi/${loc.id}`} className="text-sm">
+													<button className="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 hover:scale-105 transition dark:bg-indigo-600 dark:text-white">Lihat</button>
+												</Link>
+
+												<button onClick={() => setHighlighted(loc.id)} className="px-3 py-1.5 rounded-md border border-gray-200 bg-white text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200">📍 Fokus</button>
+											</div>
 										</div>
 									</div>
 								</article>
