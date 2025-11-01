@@ -81,23 +81,23 @@ export default function Navbar() {
 						</div>
 
 						{/* Search */}
-						<div className="hidden md:flex items-center bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-md px-2 py-1 shadow-sm">
+						{/* <div className="hidden md:flex items-center bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-md px-2 py-1 shadow-sm">
 							<Search className="text-slate-400 mr-2" size={16} />
 							<input
 								aria-label="Cari"
 								placeholder="Cari tips atau lokasi..."
 								className="w-40 bg-transparent outline-none text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400"
 							/>
-						</div>
+						</div> */}
 
 						{/* Theme toggle + CTA */}
 						<div className="flex items-center gap-3">
-							<div className="relative">
+							{/* <div className="relative">
 								<button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 transition">
 									<Bell size={16} />
 								</button>
 								<span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900" />
-							</div>
+							</div> */}
 
 							<button
 								aria-label="Toggle theme"
@@ -107,13 +107,13 @@ export default function Navbar() {
 								{theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
 							</button>
 
-							<Link
+							{/* <Link
 								href="/"
 								className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full text-sm font-semibold shadow hover:scale-105 transform transition"
 							>
 								<span className="text-xs">✨</span>
 								Mulai
-							</Link>
+							</Link> */}
 						</div>
 					</div>
 
@@ -160,7 +160,7 @@ export default function Navbar() {
 								</Link>
 							))}
 
-							<div className="mt-2 border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-3">
+							{/* <div className="mt-2 border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-3">
 								<div className="flex items-center gap-2">
 									<Search className="text-slate-400" size={16} />
 									<input placeholder="Cari..." className="bg-transparent outline-none text-sm text-slate-700 dark:text-slate-200" />
@@ -169,7 +169,7 @@ export default function Navbar() {
 								<Link href="/" className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold">
 									Mulai
 								</Link>
-							</div>
+							</div> */}
 						</div>
 					</div>
 				</div>
