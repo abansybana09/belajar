@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState, useRef, useEffect } from "react"
 import Link from "next/link"
-// ✅ Menambahkan ikon untuk filter
 import { Search, MapPin, ArrowUpDown, ChevronDown, RotateCcw } from "lucide-react"
 
 type Location = {
@@ -25,7 +24,7 @@ const SAMPLE_LOCATIONS: Location[] = [
             "Teluk kecil dengan terumbu karang dangkal. Spot populer untuk casting dan jigging ringan.",
         bestSeasons: ["Apr", "May", "Jun", "Jul"],
         image:
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=3c9c5f8c6b1b6d4f4f2b0b6d7e0c9a2d",
+            "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop&ixlib-rb-4.0.3&s=3c9c5f8c6b1b6d4f4f2b0b6d7e0c9a2d",
         difficulty: "Easy",
     },
     {
@@ -36,7 +35,7 @@ const SAMPLE_LOCATIONS: Location[] = [
             "Terdapat drop-off dekat karang yang menarik predator. Siapkan peralatan medium-heavy.",
         bestSeasons: ["May", "Jun", "Jul", "Aug"],
         image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9b3a1b8f4c6b1d8c6a4e7b2f1c0d9e3f",
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop&ixlib-rb-4.0.3&s=9b3a1b8f4c6b1d8c6a4e7b2f1c0d9e3f",
         difficulty: "Moderate",
     },
     {
@@ -47,7 +46,7 @@ const SAMPLE_LOCATIONS: Location[] = [
             "Spot muara dengan akses mudah dari darat. Cocok untuk mancing mangrove dan jenahak kecil.",
         bestSeasons: ["Jan", "Feb", "Mar", "Nov", "Dec"],
         image:
-            "https://images.unsplash.com/photo-1526779259212-5f3c89a7a6a6?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=7a8b9c6d5e4f3b2a1c0d9e8f7b6a5c4d",
+            "https://images.unsplash.com/photo-1526779259212-5f3c89a7a6a6?q=80&w=1200&auto=format&fit=crop&ixlib-rb-4.0.3&s=7a8b9c6d5e4f3b2a1c0d9e8f7b6a5c4d",
         difficulty: "Easy",
     },
 ]
@@ -123,7 +122,6 @@ export default function Page(): React.ReactElement {
         setHighlighted(pick.id)
     }
 
-    // ✅ Diubah untuk menggunakan class agar dark-mode-friendly
     function getDifficultyClasses(d?: string) {
         switch (d) {
             case "Easy":
@@ -139,46 +137,72 @@ export default function Page(): React.ReactElement {
 
     return (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* HERO SECTION */}
-            <section className="mb-6 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 p-6 shadow-md flex items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                    <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M2 12c4-6 10-8 20-2-6 2-10 6-16 8-2-2-4-4-4-6z" fill="currentColor" />
-                        </svg>
-                        <span className="absolute -right-2 -bottom-2 w-5 h-5 rounded-full bg-white/90 text-blue-600 flex items-center justify-center text-[11px] animate-bounce">🐟</span>
-                    </div>
+            {/* ✅ HERO SECTION (Responsif) */}
+            <section
+  className="mb-6 p-6 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/70
+  dark:from-slate-900/60 dark:to-slate-800/60 backdrop-blur-xl shadow-lg 
+  flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border border-white/10"
+>
 
-                    <div>
-                        {/* ✅ Gradien teks lebih cerah di dark mode */}
-                        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-violet-600 dark:from-teal-300 dark:to-violet-400">🎣 Lokasi Mancing</h1>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">Kumpulan spot rekomendasi — cari, saring, dan temukan kejutan.</p>
-                    </div>
-                </div>
+  {/* Title */}
+  <div className="flex items-center gap-4">
+    <div className="relative flex items-center justify-center w-14 h-14 rounded-full 
+      bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M2 12c4-6 10-8 20-2-6 2-10 6-16 8-2-2-4-4-4-6z" fill="currentColor" />
+      </svg>
+      <span className="absolute -right-1 -bottom-1 w-6 h-6 rounded-full bg-white/90 text-blue-600 
+        flex items-center justify-center text-xs font-bold shadow-md animate-bounce">🐟</span>
+    </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="text-sm text-slate-600 dark:text-slate-300 hidden sm:block">{filtered.length} hasil</div>
-                    {/* ✅ Tombol Reset menggunakan ikon */}
-                    <button
-                        onClick={() => { setQuery(""); setRegion("All"); setSortBy("popular") }}
-                        className="p-2 rounded-md bg-white border border-gray-200 hover:bg-gray-50 text-sm text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        aria-label="Reset filter"
-                    >
-                        <RotateCcw size={16} />
-                    </button>
+    <div>
+      <h1 className="text-2xl font-extrabold bg-clip-text text-transparent 
+        bg-gradient-to-r from-teal-500 to-violet-600 dark:from-teal-300 dark:to-violet-400">
+        🎣 Lokasi Mancing
+      </h1>
+      <p className="text-sm text-slate-600 dark:text-slate-300">
+        Kumpulan spot rekomendasi terbaik untukmu.
+      </p>
+    </div>
+  </div>
 
-                    <button
-                        onClick={surpriseMe}
-                        className="px-4 py-2 rounded-full bg-rose-500 to-pink-500 bg-gradient-to-r text-white text-sm font-semibold shadow-lg hover:scale-105 transition-transform transform"
-                    >
-                        Surprise Me ✨
-                    </button>
-                </div>
-            </section>
+  {/* Actions */}
+  <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
 
-            {/* ✅ FILTERS (Dibuat ulang agar lebih modern) */}
-            <section aria-label="controls" className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5 items-center">
-                <div className="relative">
+    <button
+      onClick={surpriseMe}
+      className="px-5 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white 
+      text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 
+      transition-all w-full sm:w-auto"
+    >
+      ✨ Surprise Me
+    </button>
+
+    <div className="flex items-center justify-between sm:gap-3 bg-white/40 dark:bg-slate-800/40 
+      backdrop-blur-md px-3 py-2 rounded-xl border border-white/20 dark:border-slate-700/40 w-full sm:w-auto">
+      
+      <div className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        {filtered.length} hasil
+      </div>
+
+      <button
+        onClick={() => { setQuery(""); setRegion("All"); setSortBy("popular") }}
+        className="p-2 rounded-lg bg-white/80 dark:bg-slate-700 hover:bg-white 
+        dark:hover:bg-slate-600 border border-gray-200/40 dark:border-slate-600 transition-colors"
+        aria-label="Reset filter"
+      >
+        <RotateCcw size={16} />
+      </button>
+    </div>
+  </div>
+</section>
+
+
+            {/* ✅ FILTERS (Responsif) */}
+            <section aria-label="controls" className="grid **grid-cols-2** md:grid-cols-3 gap-3 mb-5 items-center">
+                
+                {/* Search Bar (Full width di mobile) */}
+                <div className="relative **col-span-2 md:col-span-1**">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         aria-label="Cari lokasi"
@@ -189,6 +213,7 @@ export default function Page(): React.ReactElement {
                     />
                 </div>
 
+                {/* Region (50% width di mobile) */}
                 <div className="relative">
                     <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <select
@@ -204,6 +229,7 @@ export default function Page(): React.ReactElement {
                     <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
 
+                {/* Sort By (50% width di mobile) */}
                 <div className="relative">
                     <ArrowUpDown size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <select
@@ -219,7 +245,7 @@ export default function Page(): React.ReactElement {
                 </div>
             </section>
 
-            {/* RESULTS */}
+            {/* RESULTS (Grid ini sudah responsif dari sananya) */}
             <section aria-live="polite">
                 {filtered.length === 0 ? (
                     <div className="p-6 bg-gray-50 dark:bg-slate-800/50 rounded-md text-center text-slate-600 dark:text-slate-400">
@@ -237,7 +263,6 @@ export default function Page(): React.ReactElement {
                                     key={loc.id}
                                     onMouseEnter={() => setHoveredId(loc.id)}
                                     onMouseLeave={() => setHoveredId(null)}
-                                    // ✅ Aksen border hover di dark mode + background lebih transparan
                                     className={`group relative rounded-xl overflow-hidden bg-white dark:bg-slate-800/80 border 
                                     ${isHighlighted
                                         ? 'ring-4 ring-indigo-300 dark:ring-indigo-500 shadow-xl border-indigo-300 dark:border-indigo-500'
@@ -245,22 +270,18 @@ export default function Page(): React.ReactElement {
                                     }
                                     transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
                                 >
-                                    {/* HIGHLIGHT LABEL */}
                                     {isHighlighted && (
                                         <span className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow-md">
                                             ✨ Fokus
                                         </span>
                                     )}
 
-                                    {/* ✅ GAMBAR (Sekarang menjadi Link) */}
                                     <Link href={`/lokasi/${loc.id}`} className="block h-40 bg-gray-200 relative overflow-hidden">
                                         <img
                                             src={loc.image}
                                             alt={loc.name}
                                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
-
-                                        {/* POP BADGE + STARS */}
                                         <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
                                             <div className="text-[11px] px-2 py-0.5 rounded-full bg-white/90 text-rose-600 font-medium shadow backdrop-blur-sm">
                                                 {pop ? `🔥 ${pop}%` : '—'}
@@ -273,7 +294,6 @@ export default function Page(): React.ReactElement {
                                         </div>
                                     </Link>
 
-                                    {/* ✅ CONTENT (Tinggi tidak lagi kaku) */}
                                     <div className="p-4">
                                         <Link href={`/lokasi/${loc.id}`} className="block mb-2">
                                             <h3 className="flex items-center justify-between gap-3 text-base font-semibold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
@@ -284,15 +304,12 @@ export default function Page(): React.ReactElement {
                                             </h3>
                                         </Link>
 
-                                        {/* Difficulty & Popularity */}
                                         <div className="flex items-center gap-3 mb-3">
-                                            {/* ✅ Badge menggunakan class, bukan style */}
                                             <span
                                                 className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${getDifficultyClasses(loc.difficulty)}`}
                                             >
                                                 {loc.difficulty ?? '—'}
                                             </span>
-
                                             <div className="flex items-center gap-2 flex-1">
                                                 <div className="w-full h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                                     <div
@@ -318,7 +335,7 @@ export default function Page(): React.ReactElement {
                                             {highlightText(loc.description, query)}
                                         </p>
 
-                                        {loc.description.length > 100 && ( // Sedikit diturunkan agar lebih sering muncul
+                                        {loc.description.length > 100 && (
                                             <button
                                                 onClick={() => toggleExpanded(loc.id)}
                                                 className="mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -327,7 +344,6 @@ export default function Page(): React.ReactElement {
                                             </button>
                                         )}
 
-                                        {/* ✅ Musim & Tombol Fokus (Tombol Lihat dihapus) */}
                                         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/50 flex items-center justify-between">
                                             <div className="flex gap-1.5 flex-wrap">
                                                 {loc.bestSeasons.slice(0, 4).map((s) => (
@@ -339,7 +355,6 @@ export default function Page(): React.ReactElement {
                                                     </span>
                                                 ))}
                                             </div>
-
                                             <button
                                                 onClick={() => setHighlighted(loc.id)}
                                                 className="px-3 py-1.5 rounded-md bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-medium shadow hover:scale-105 transition-transform transform"
